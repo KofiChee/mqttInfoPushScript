@@ -3,38 +3,46 @@ import datetime
 import psutil
 import math
 
+
 def get_uptime():
     """
-    Returns the boot time of the system, formated as days, hours, minutes and seconds
-    psutil.boot_time() returns the boot time in epoch seconds, so we subtract that 
-    from the current time in epoch seconds
-    
-    We then convert back using divmod, which does modulus on the first argument by the second,
-    then returns a tuple of the modulus followed by the remainder
+    Returns the boot time of the system, formated as days, hours,
+    minutes and seconds. psutil.boot_time() returns the boot time
+    in epoch seconds, so we subtract that from the current time
+    in epoch seconds
+
+    We then convert back using divmod, which does modulus on the
+    first argument by the second,then returns a tuple of the
+    modulus followed by the remainder
     """
     seconds = datetime.datetime.now().timestamp() - psutil.boot_time()
     m, s = divmod(seconds, 60)
     h, m = divmod(m, 60)
     d, h = divmod(h, 24)
-    return '{} days, {} hours, {} minutes, {} seconds'.format(int(d), int(h), int(m), int(s))
+    return '{} days, {} hours, {}} minutes, \
+            {} seconds'.format(int(d), int(h), int(m), int(s))
+
 
 def get_cpu_load():
     """
-    We use the argument 2 here, which is the interval the psutil.cpu_percent() checks for
-    This is not too low as to return an incorrect number, but not too high as it is a 
-    blocking process
+    We use the argument 2 here, which is the interval the psutil.cpu_percent()
+    checks for. This is not too low as to return an incorrect number,
+    but not too high as it is a blocking process
     """
     return psutil.cpu_percent(2)
-  
+
+
 def get_free_memory():
     """
-    psutil.virtual_memory() returns a named_tuple full of information about virtual memory
-    For the purposes of this script, we are only interested in free memory, which is at [4]
+    psutil.virtual_memory() returns a named_tuple full of information about
+    virtual memory. For the purposes of this script, we are only interested in
+    free memory, which is at  memory[4]
     """
     memory = psutil.virtual_memory()
     free_memory = memory[4] / 1024 ** 2
     return math.floor(free_memory)
-    
+
+
 def get_free_storage():
     """
     This functions very similarly to get_free_memory above, only that
@@ -46,11 +54,13 @@ def get_free_storage():
     storage = psutil.disk_usage('/')
     free_space = storage[2] / 1024 ** 2
     return math.floor(free_space)
-    
+
+
 def get_net_info():
     """
-    This function works similarly again to get_free_memory() and get_free_storage()
-    psutil.net_io_counters() returns a namedTuple, we are interested in [0] and [1]
+    This function works similarly again to get_free_memory() and
+    get_free_storage(), psutil.net_io_counters() returns a namedTuple,
+    we are interested in netInfo[0] and netInfo[1].
     These indexes contain data sent in bytes and data received in bytes
     """
     netInfo = psutil.net_io_counters()
@@ -59,7 +69,7 @@ def get_net_info():
     mbRec = netInfo[1] / 1024 ** 2
 
     return math.floor(mbSent), math.floor(mbRec)
-    
+
 print(get_uptime())
 print(get_cpu_load())
 print(get_free_memory())
@@ -79,7 +89,7 @@ mqttc.connect("m21.cloudmqtt.com", 17472)
 mqttc.loop_start()
 
 
-#This stores a datetime object in CT, which we then format
+# This stores a datetime object in CT, which we then format
 ct = datetime.datetime.now()
 current_time = ct.strftime("%D - %H:%M:%S")
 

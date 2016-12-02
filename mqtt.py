@@ -70,21 +70,20 @@ def get_net_info():
 
     return math.floor(mbSent), math.floor(mbRec)
 
-print(get_uptime())
-print(get_cpu_load())
-print(get_free_memory())
-print(get_free_storage())
-print(get_net_info())
-
-
+# These details should be replaced with your own, client_id must be unique!
 username = "bancbrxq"
 password = "UFLIsH2raojY"
 client_id = "System Test"
+
+# clean_session is False to enable persistent sessions, however this does not
+# seem to enable persistent messaging, may be a problem with cloudMQTT
 clean_session = False
 
+# Creates the client object
 mqttc = mqtt.Client(client_id, clean_session)
 mqttc.username_pw_set(username, password)
 
+# Starts the networking component
 mqttc.connect("m21.cloudmqtt.com", 17472)
 mqttc.loop_start()
 
@@ -93,13 +92,16 @@ mqttc.loop_start()
 ct = datetime.datetime.now()
 current_time = ct.strftime("%D - %H:%M:%S")
 
+# Gather the data to be sent to the broker
 uptime = get_uptime()
 cpu_load = get_cpu_load()
 free_mem = get_free_memory()
 free_storage = get_free_storage()
 mb_sent, mb_received = get_net_info()
 
-
+# Publish to each topic, we set them with QoS 1 and retained messages
+# This is used so that when someone connects to the broker
+# they can see the last received update along with the timestamp
 mqttc.publish("systemhealth/uptime", uptime, 1, True)
 mqttc.publish("systemhealth/cpuload", cpu_load, 1, True)
 mqttc.publish("systemhealth/freememory", free_mem, 1, True)
@@ -107,4 +109,6 @@ mqttc.publish("systemhealth/freestorage", free_storage, 1, True)
 mqttc.publish("systemhealth/netsent", mb_sent, 1, True)
 mqttc.publish("systemhealth/netreceived", mb_received, 1, True)
 mqttc.publish("systemhealth/lastupdate", current_time, 1, True)
+
+# Disconnect from the broker and close the networking loop
 mqttc.disconnect()

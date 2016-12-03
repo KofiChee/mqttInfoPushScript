@@ -4,7 +4,8 @@ import psutil
 import math
 import logging
 import sys
-from socket import gethostbyname, gaierror
+import time
+from socket import gaierror
 
 
 def get_uptime():
@@ -22,8 +23,8 @@ def get_uptime():
     m, s = divmod(seconds, 60)
     h, m = divmod(m, 60)
     d, h = divmod(h, 24)
-    return '{} days, {} hours, {} minutes, \
-            {} seconds'.format(int(d), int(h), int(m), int(s))
+    return '{} days, {} hours, {} minutes, {} seconds'\
+        .format(int(d), int(h), int(m), int(s))
 
 
 def get_cpu_load():
@@ -74,11 +75,11 @@ def get_net_info():
     return math.floor(mbSent), math.floor(mbRec)
 
 # log to mqttPush.log in the same location as the script
-logging.basicConfig(filename='mqttPush.log',level=logging.INFO)
+logging.basicConfig(filename='mqttPush.log', level=logging.INFO)
 
 # These details should be replaced with your own, client_id must be unique!
-username = "bancbrxq"
-password = "UFLIsH2raojY"
+username = "xxx"
+password = "xxx"
 client_id = "System Test"
 
 # clean_session is False to enable persistent sessions, however this does not
@@ -90,8 +91,9 @@ mqttc = mqtt.Client(client_id, clean_session)
 mqttc.username_pw_set(username, password)
 
 # Starts the networking component with error handling
+# You should enter your own broker ip and port here
 try:
-    mqttc.connect("xxxx", 17472)
+    mqttc.connect("xxx.yyy", 10439)
     mqttc.loop_start()
 except ConnectionRefusedError as e:
     logging.warning(str(e) + ": Exiting script")
@@ -124,6 +126,8 @@ mqttc.publish("systemhealth/netsent", mb_sent, 1, True)
 mqttc.publish("systemhealth/netreceived", mb_received, 1, True)
 mqttc.publish("systemhealth/lastupdate", current_time, 1, True)
 
+# Sleep briefly, without this certain hosts will disconnect before publishing
+time.sleep(1)
 # Disconnect from the broker and close the networking loop
-logging.info('Script completed at %s' + current_time)
+logging.info('Script completed at %s', current_time)
 mqttc.disconnect()
